@@ -302,6 +302,11 @@ if __name__ == "__main__":
     o método chat para lidar com conversas.
     """
     me = Me()
-    interface = gr.ChatInterface(me.chat, type="messages")
+    interface = gr.ChatInterface(
+        me.chat, type="messages",
+        title="Gabriel Martins's AI Chatbot",
+        description="Chat with Gabriel Martins about his career, background, skills and experience!",
+        theme="soft"
+    )
     interface.launch()
     
