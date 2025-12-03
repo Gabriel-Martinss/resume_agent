@@ -143,6 +143,7 @@ class Me:
         openai (OpenAI): Instância do cliente OpenAI.
         name (str): O nome da pessoa sendo simulada.
         linkedin (str): Texto extraído do PDF do perfil do LinkedIn.
+        resume (str): Texto extraído do PDF do currículo da pessoa.
         summary (str): Texto de resumo carregado de me/summary.txt.
     """
 
@@ -155,12 +156,12 @@ class Me:
         
         Arquivos esperados:
             - me/linkedin.pdf: Arquivo PDF contendo informações do perfil do LinkedIn
+            - me/resume.pdf: Arquivo PDF contendo o currículo da pessoa
             - me/summary.txt: Arquivo de texto com um resumo do histórico da pessoa
         """
         self.openai = OpenAI()
         self.name = "Gabriel Martins"
         
-        # Extract text from LinkedIn PDF
         reader_linkedin = PdfReader("me/linkedin.pdf")
         self.linkedin = ""
         for page in reader_linkedin.pages:
@@ -175,7 +176,6 @@ class Me:
             if text:
                 self.resume += text
         
-        # Load summary text
         with open("me/summary.txt", "r", encoding="utf-8") as f:
             self.summary = f.read()
 
@@ -201,11 +201,11 @@ class Me:
             arguments = json.loads(tool_call.function.arguments)
             print(f"Tool called: {tool_name}", flush=True)
             
-            # Get the function from global scope and execute it
+            # Verifica se a função existe em escopo global e a executa
             tool = globals().get(tool_name)
             result = tool(**arguments) if tool else {}
             
-            # Format result for OpenAI API (tool role message)
+            # Formata o resultado para a API OpenAI (mensagem de papel de ferramenta)
             results.append({
                 "role": "tool",
                 "content": json.dumps(result),
@@ -259,36 +259,36 @@ class Me:
         Returns:
             str: A resposta de texto final do LLM para o usuário.
         """
-        # Build message list: system prompt + history + current user message
+        # Construir lista de mensagens: prompt do sistema + histórico + mensagem do usuário atual
         messages = (
             [{"role": "system", "content": self.system_prompt()}] 
             + history 
             + [{"role": "user", "content": message}]
         )
         
-        # Loop until we get a final response (not a tool call)
+        # Loop até obter uma resposta final (não uma tool_call)
         done = False
         while not done:
-            # Make API call with tools available
+            # Fazer chamada à API com ferramentas disponíveis
             response = self.openai.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=messages,
                 tools=tools
             )
             
-            # Check if LLM wants to call tools
+            # Verifica se o LLM quer usar alguma tool
             if response.choices[0].finish_reason == "tool_calls":
-                # Extract tool calls and execute them
+                # Extrai chamadas de ferramentas e as executa
                 message = response.choices[0].message
                 tool_calls = message.tool_calls
                 results = self.handle_tool_call(tool_calls)
                 
-                # Add tool call message and results to conversation history
+                # Adiciona mensagem de tool_call e resultados ao histórico da conversa
                 messages.append(message)
                 messages.extend(results)
-                # Continue loop to get LLM's response after tool execution
+                # Continua o loop para obter a resposta do LLM após a execução da tool
             else:
-                # LLM provided final text response, exit loop
+                # O LLM forneceu uma resposta de texto final, sai do loop
                 done = True
         
         return response.choices[0].message.content

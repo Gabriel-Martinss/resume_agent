@@ -12,7 +12,7 @@ Uma aplicação de chatbot interativa que simula conversas como uma pessoa espec
 ## Recursos
 
 - 🤖 **Conversas com IA**: Usa GPT-4o-mini para gerar respostas naturais e contextuais
-- 📄 **Consciente do Contexto**: Carrega informações de PDF do LinkedIn e arquivos de texto de resumo
+- 📄 **Consciente do Contexto**: Carrega informações de PDF do LinkedIn, currículo e arquivos de texto de resumo
 - 🛠️ **Chamada de Ferramentas**: Suporta chamada de funções para registrar interações do usuário
 - 📱 **Notificações Push**: Integra com API Pushover para notificar sobre interações do usuário
 - 💬 **Interface Interativa**: Interface de chat Gradio para conversas fluidas
